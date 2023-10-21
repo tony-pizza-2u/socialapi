@@ -2,9 +2,14 @@
 require('dotenv').config();
 
 const mongoose = require('mongoose');
+
 mongoose.connect(process.env.DB_URL);
 
-// const Cat = mongoose.model('Cat', { name: String });
+const db = {};
 
-// const kitty = new Cat({ name: 'Zildjian' });
-// kitty.save().then(() => console.log('meow'));
+db.mongoose = mongoose;
+
+db.User = require('./user.js')(mongoose);
+db.Thought = require('./thought.js')(mongoose);
+
+module.exports = db;
