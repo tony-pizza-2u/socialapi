@@ -1,6 +1,5 @@
 const validator = require('validator');
 
-
 module.exports = (mongoose) =>{
 
     const {Schema} = mongoose;

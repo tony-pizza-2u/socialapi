@@ -9,7 +9,7 @@ const db = {};
 
 db.mongoose = mongoose;
 
-db.User = require('./user.js')(mongoose);
-db.Thought = require('./thought.js')(mongoose);
+db.User = require('./user')(mongoose);
+db.Thought = require('./thought')(mongoose);
 
 module.exports = db;

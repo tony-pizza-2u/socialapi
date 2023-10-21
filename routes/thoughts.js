@@ -3,10 +3,10 @@ var router = express.Router();
 
 const db = require('../models/index');
 
-/* GET users listing. */
+/* GET thoughts listing. */
 router.get('*', function(req, res, next) {
   
-  db.User.find().then( results => {
+  db.Thought.find().then( results => {
     res.json(results);
   });
 
@@ -16,7 +16,7 @@ router.get('/:id', function(req, res, next) {
 
   var id = req.params.id;
   
-  db.User.find({_id: id}).then( results => {
+  db.Thought.find({_id: id}).then( results => {
     res.json(results);
   });
 
@@ -25,12 +25,17 @@ router.get('/:id', function(req, res, next) {
 router.put('*', function(req, res, next){
 
   var id = req.body.id;
+  var thoughtText = req.body.thoughtText;
   var username = req.body.username;
-  var email = req.body.email;
+  var reactions = req.body.reactions;
 
-  db.User.updateOne(
+  db.Thought.updateOne(
     {_id:id},
-    {username:username, email: email}
+    {
+        thoughtText:thoughtText, 
+        username: username,
+        reactions: reactions
+    }
     ).then(result => {
       res.json(result);
     });
@@ -39,10 +44,17 @@ router.put('*', function(req, res, next){
 
 router.post('*', function(req, res, next){
 
-  var username = req.body.username;
-  var email = req.body.email;
+    var thoughtText = req.body.thoughtText;
+    var username = req.body.username;
+    var reactions = req.body.reactions;
 
-  var user = new db.User({username: username, email: email});
+  var thought = new db.Thought(
+    {
+        thoughtText:thoughtText, 
+        username: username,
+        reactions: reactions
+    }
+    );
 
   user.save().then(result => {
 
@@ -56,7 +68,7 @@ router.delete('*', function(req, res, next){
 
   var id = req.body.id;
 
-  db.User.deleteOne({ id: id }).then( result => {
+  db.Thought.deleteOne({ id: id }).then( result => {
     res.json(result);
   });
 
