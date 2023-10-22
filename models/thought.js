@@ -1,7 +1,7 @@
-const validator = require('validator');
+
 
 module.exports = (mongoose) =>{
-
+    
     const {Schema} = mongoose;
 
     const reactionSchema = new Schema({
@@ -15,7 +15,7 @@ module.exports = (mongoose) =>{
                 if (date) return date.toISOString().split("T") [0];
             }
         },
-    });    
+    });
 
     const thoughtSchema = new Schema({
         thoughtText: {type: String, required: true, min: 1, max: 280},
@@ -30,7 +30,12 @@ module.exports = (mongoose) =>{
         reactions: [reactionSchema]
     });
 
+    thoughtSchema.virtual('reactionCount').get(function() {
+        return this.reactions.length;
+    });
+
     const Thought = mongoose.model('Thought', thoughtSchema);
 
     return Thought;
+
 }
