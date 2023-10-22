@@ -3,158 +3,199 @@ var router = express.Router();
 
 const db = require('../models/index');
 
-router.get('', function(req, res, next) {
-  
-  db.Thought.find().then( results => {
-    res.json(results);
-  });
+router.get('', function (req, res, next) {
 
-});
+    try {
 
-router.get('/:id', function(req, res, next) {
+        db.Thought.find().then((error) => { return next(error) }, results => {
+            res.json(results);
+        });
 
-  var id = req.params.id;
-  
-  db.Thought.findOne({_id: id}).then( result => {
-    res.json(result);
-  });
-
-});
-
-router.put('', function(req, res, next){
-
-  var id = req.body.id;
-  var thoughtText = req.body.thoughtText;
-  var username = req.body.username;
-
-  db.Thought.updateOne(
-    {_id:id},
-    {
-        thoughtText:thoughtText, 
-        username: username
+    } catch (error) {
+        return next(error);
     }
-    ).then(result => {
-
-        res.json(result);
-  
-    });
 
 });
 
-router.post('', function(req, res, next){
+router.get('/:id', function (req, res, next) {
 
-    var thoughtText = req.body.thoughtText;
-    var username = req.body.username;
+    try {
 
-  var thought = new db.Thought(
-    {
-        thoughtText:thoughtText, 
-        username: username
+        var id = req.params.id;
+
+        db.Thought.findOne({ _id: id }).then((error) => { return next(error) }, result => {
+            res.json(result);
+        });
+
+    } catch (error) {
+        return next(error);
     }
-    );
 
-  thought.save().then(result => {
+});
 
-    var finalResult = {};
+router.put('/:id', function (req, res, next) {
 
-    finalResult.thought = result;
+    try {
 
-    db.User.findOne({_id: id}).then( result => {
-    
-        var user = result;
-    
-        user.thoughts.push({_id: finalResult.thought._id});
-      
-        user.save().then( result => {
+        var id = req.params.id;
+        var thoughtText = req.body.thoughtText;
 
-            finalResult.userResult = result;
+        db.Thought.updateOne(
+            { _id: id },
+            {
+                thoughtText: thoughtText
+            }
+        ).then((error) => { return next(error) }, result => {
 
-            res.json(finalResult);
+            res.json(result);
 
         });
-    
-    });
 
-  });
+    } catch (error) {
+        return next(error);
+    }
 
 });
 
-router.delete('', function(req, res, next){
+router.post('', function (req, res, next) {
 
-  var id = req.body.id;
+    try {
 
-  var finalResult = {};
+        var thoughtText = req.body.thoughtText;
+        var username = req.body.username;
+        var id = req.body.id;
 
-  db.Thought.findOne({ _id: id }).then( result => {
+        var thought = new db.Thought(
+            {
+                thoughtText: thoughtText,
+                username: username
+            });
 
-    var thought = result;
+        thought.save().then((error) => { return next(error) }, result => {
 
-    db.User.findOne({username: thought.username}).then( result => {
-    
-        var user = result;
-    
-        user.thoughts.pull({_id: thought._id});
-      
-        user.save().then( result => {
+            var finalResult = {};
 
-            finalResult.userResult = result;
+            finalResult.thought = result;
 
-            db.Thought.deleteOne({ _id: thought._id }).then( result => {
+            db.User.findOne({ _id: id }).then((error) => { return next(error) }, result => {
 
-                finalResult.thoughtResult = result;
+                var user = result;
 
-                res.json(finalResult);
+                user.thoughts.push({ _id: finalResult.thought._id });
+
+                user.save().then((error) => { return next(error) }, result => {
+
+                    finalResult.userResult = result;
+
+                    res.json(finalResult);
+
+                });
 
             });
 
         });
-    
-    }); 
 
-  });
+    } catch (error) {
+        return next(error);
+    }
 
 });
 
-router.post('/:id/reactions', function(req, res, next) {
+router.delete('/:id', function (req, res, next) {
 
-    var id = req.params.thoughtId;
+    try{
 
-    var reaction = {
-        reactionBody: req.body.reactionBody,
-        username : req.body.username
+        var id = req.params.id;
+
+        var finalResult = {};
+    
+        db.Thought.findOne({ _id: id }).then((error) => { return next(error) }, result => {
+    
+            var thought = result;
+    
+            db.User.findOne({ username: thought.username }).then((error) => { return next(error) }, result => {
+    
+                var user = result;
+    
+                user.thoughts.pull({ _id: thought._id });
+    
+                user.save().then((error) => { return next(error) }, result => {
+    
+                    finalResult.userResult = result;
+    
+                    db.Thought.deleteOne({ _id: thought._id }).then((error) => { return next(error) }, result => {
+    
+                        finalResult.thoughtResult = result;
+    
+                        res.json(finalResult);
+    
+                    });
+    
+                });
+    
+            });
+    
+        });
+    
+    }catch(error){
+        return next(error);
     }
-  
-    db.Thought.findOne({_id: id}).then( result => {
 
-        var thought = result;
+});
 
-        thought.reactions.push(reaction);
+router.post('/:id/reactions', function (req, res, next) {
 
-        thought.save().then(result => {
-            res.json(result);
+    try{
+
+        var id = req.params.id;
+
+        var reaction = {
+            reactionId: new db.mongoose.Types.ObjectId(),
+            reactionBody: req.body.reactionBody,
+            username: req.body.username
+        }
+    
+        db.Thought.findOne({ _id: id }).then((error) => { return next(error) }, result => {
+    
+            var thought = result;
+    
+            thought.reactions.push(reaction);
+    
+            thought.save().then((error) => { return next(error) }, result => {
+                res.json(result);
+            });
+    
         });
 
-    });
-  
-  });
+    }catch(error){
+        return next(error);
+    }
 
-router.delete('/:thoughtId/reactions/:reactionId', function(req, res, next) {
-  
-    var thoughtId = req.params.thoughtId;
-    var reactionId = req.params.reactionId;
+});
 
-    db.Thought.findOne({_id: thoughtId}).then( result => {
+router.delete('/:thoughtId/reactions/:reactionId', function (req, res, next) {
 
-        var thought = result;
+    try{
 
-        thought.reactions.pull({_id: reactionId});
+        var thoughtId = req.params.thoughtId;
+        var reactionId = req.params.reactionId;
+    
+        db.Thought.findOne({ _id: thoughtId }).then((error) => { return next(error) }, result => {
+    
+            var thought = result;
+    
+            thought.reactions.pull({ reactionId: reactionId });
+    
+            thought.save().then((error) => { return next(error) }, result => {
+                res.json(result);
+            });
+    
+        });        
 
-        thought.save().then(result => {
-            res.json(result);
-        });
+    }catch(error){
+        return next(error);
+    }
 
-    });
-  
 });
 
 

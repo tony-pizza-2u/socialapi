@@ -5,7 +5,7 @@ const db = require('../models/index');
 
 router.get('', function(req, res, next) {
   
-  db.User.find().then( results => {
+  db.User.find().then((error) => {return next(error)}, results => {
     res.json(results);
   });
 
@@ -13,89 +13,128 @@ router.get('', function(req, res, next) {
 
 router.get('/:id', function(req, res, next) {
 
-  var id = req.params.id;
+  try{
+
+    var id = req.params.id;
   
-  db.User.findOne({_id: id}).then( result => {
-    res.json(result);
-  });
+    db.User.findOne({_id: id}).then((error) => {return next(error)}, result => {
+      res.json(result);
+    });
+
+  }catch(error){
+    return next(error);
+  }
 
 });
 
 router.post('', function(req, res, next){
 
-  var username = req.body.username;
-  var email = req.body.email;
+  try{
 
-  var user = new db.User({username: username, email: email});
+    var username = req.body.username;
+    var email = req.body.email;
 
-  user.save().then(result => {
+    var user = new db.User({username: username, email: email});
 
-    res.json(result);
+    user.save().then((error) => {return next(error)}, result => {
+  
+        res.json(result);
+    
+    });
 
-  });
+  } catch(error){
+    return next(error);
+  }
 
 });
 
 router.put('', function(req, res, next){
 
-  var id = req.body.id;
-  var username = req.body.username;
-  var email = req.body.email;
+  try{
 
-  db.User.updateOne(
-    {_id:id},
-    {username:username, email: email}
-    ).then(result => {
-      res.json(result);
-    });
+    var id = req.body.id;
+    var username = req.body.username;
+    var email = req.body.email;
+  
+    db.User.updateOne(
+      {_id:id},
+      {username:username, email: email}
+      ).then((error) => {return next(error)}, result => {
+  
+        res.json(result);
+  
+      });
+
+  } catch(error){
+    return next(error);
+  }
 
 });
 
 router.delete('/:id', function(req, res, next){
 
-  var id = req.params.id;
+  try{
 
-  db.User.deleteOne({ _id: id }).then( result => {
-    res.json(result);
-  });
+    var id = req.params.id;
+
+    db.User.deleteOne({ _id: id }).then((error) => {return next(error)}, result => {
+      res.json(result);
+    });
+
+  } catch(error){
+    return next(error);
+  }
 
 });
 
 router.post('/:id/friends/:friendId', function(req, res, next){
 
-  var id = req.params.id;
-  var friendId = req.params.friendId;
 
-  db.User.findOne({_id: id}).then( result => {
+  try{
+
+    var id = req.params.id;
+    var friendId = req.params.friendId;
+  
+    db.User.findOne({_id: id}).then((error) => {return next(error)}, result => {
+      
+      var user = result;
+  
+      user.friends.push({_id: friendId});
     
-    var user = result;
-
-    user.friends.push({_id: friendId});
-  
-    user.save().then( result => {
-        res.json(result);
+      user.save().then((error) => {return next(error)}, result => {
+          res.json(result);
+      });
+    
     });
-  
-  });
+
+  } catch(error){
+    return next(error);
+  }
 
 });
 
 router.delete('/:id/friends/:friendId', function(req, res, next){
 
-  var id = req.params.id;
-  var friendId = req.params.friendId;
+  try{
 
-  db.User.findOne({_id: id}).then( result => {
-    
-    var user = result;
-
-    user.friends.pull({_id: friendId});
-
-    user.save().then( result => {
-        res.json(result);
+    var id = req.params.id;
+    var friendId = req.params.friendId;
+  
+    db.User.findOne({_id: id}).then((error) => {return next(error)}, result => {
+      
+      var user = result;
+  
+      user.friends.pull({_id: friendId});
+  
+      user.save().then((error) => {return next(error)}, result => {
+          res.json(result);
+      });
+  
     });
 
-  });
+  } catch(error){
+    return next(error);
+  }
 
 });
 
