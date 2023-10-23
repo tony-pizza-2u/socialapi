@@ -226,7 +226,7 @@ router.delete('/:thoughtId/reactions/:reactionId', function (req, res, next) {
     
             var thought = result;
 
-            if(thought && thought.reactions){
+            if(thought.reactions){
 
                 thought.reactions.pull({ reactionId: reactionId });
     
@@ -237,6 +237,10 @@ router.delete('/:thoughtId/reactions/:reactionId', function (req, res, next) {
                 }).catch(function(err){
                     return next(err);
                 });
+                
+            } else {
+
+                res.json(thought);
                 
             }
     
