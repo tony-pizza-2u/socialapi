@@ -3,11 +3,15 @@ var router = express.Router();
 
 const db = require('../models/index');
 
+function handleErrors(handleErrors, error){
+    return next(error);
+  }
+
 router.get('', function (req, res, next) {
 
     try {
 
-        db.Thought.find().then((error) => { return next(error) }, results => {
+        db.Thought.find().then(handleErrors, results => {
             res.json(results);
         });
 
@@ -23,7 +27,7 @@ router.get('/:id', function (req, res, next) {
 
         var id = req.params.id;
 
-        db.Thought.findOne({ _id: id }).then((error) => { return next(error) }, result => {
+        db.Thought.findOne({ _id: id }).then(handleErrors, result => {
             res.json(result);
         });
 
@@ -45,7 +49,7 @@ router.put('/:id', function (req, res, next) {
             {
                 thoughtText: thoughtText
             }
-        ).then((error) => { return next(error) }, result => {
+        ).then(handleErrors, result => {
 
             res.json(result);
 
@@ -71,19 +75,19 @@ router.post('', function (req, res, next) {
                 username: username
             });
 
-        thought.save().then((error) => { return next(error) }, result => {
+        thought.save().then(handleErrors, result => {
 
             var finalResult = {};
 
             finalResult.thought = result;
 
-            db.User.findOne({ _id: id }).then((error) => { return next(error) }, result => {
+            db.User.findOne({ _id: id }).then(handleErrors, result => {
 
                 var user = result;
 
                 user.thoughts.push({ _id: finalResult.thought._id });
 
-                user.save().then((error) => { return next(error) }, result => {
+                user.save().then(handleErrors, result => {
 
                     finalResult.userResult = result;
 
@@ -109,21 +113,21 @@ router.delete('/:id', function (req, res, next) {
 
         var finalResult = {};
     
-        db.Thought.findOne({ _id: id }).then((error) => { return next(error) }, result => {
+        db.Thought.findOne({ _id: id }).then(handleErrors, result => {
     
             var thought = result;
     
-            db.User.findOne({ username: thought.username }).then((error) => { return next(error) }, result => {
+            db.User.findOne({ username: thought.username }).then(handleErrors, result => {
     
                 var user = result;
     
                 user.thoughts.pull({ _id: thought._id });
     
-                user.save().then((error) => { return next(error) }, result => {
+                user.save().then(handleErrors, result => {
     
                     finalResult.userResult = result;
     
-                    db.Thought.deleteOne({ _id: thought._id }).then((error) => { return next(error) }, result => {
+                    db.Thought.deleteOne({ _id: thought._id }).then(handleErrors, result => {
     
                         finalResult.thoughtResult = result;
     
@@ -155,13 +159,13 @@ router.post('/:id/reactions', function (req, res, next) {
             username: req.body.username
         }
     
-        db.Thought.findOne({ _id: id }).then((error) => { return next(error) }, result => {
+        db.Thought.findOne({ _id: id }).then(handleErrors, result => {
     
             var thought = result;
     
             thought.reactions.push(reaction);
     
-            thought.save().then((error) => { return next(error) }, result => {
+            thought.save().then(handleErrors, result => {
                 res.json(result);
             });
     
@@ -180,13 +184,13 @@ router.delete('/:thoughtId/reactions/:reactionId', function (req, res, next) {
         var thoughtId = req.params.thoughtId;
         var reactionId = req.params.reactionId;
     
-        db.Thought.findOne({ _id: thoughtId }).then((error) => { return next(error) }, result => {
+        db.Thought.findOne({ _id: thoughtId }).then(handleErrors, result => {
     
             var thought = result;
     
             thought.reactions.pull({ reactionId: reactionId });
     
-            thought.save().then((error) => { return next(error) }, result => {
+            thought.save().then(handleErrors, result => {
                 res.json(result);
             });
     
