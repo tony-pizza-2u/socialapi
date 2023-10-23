@@ -4,7 +4,7 @@ var router = express.Router();
 const db = require('../models/index');
 
 function handleErrors(handleErrors, error){
-  return next(error);
+  throw(error);
 }
 
 router.get('', function(req, res, next) {
