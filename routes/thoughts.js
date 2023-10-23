@@ -128,15 +128,33 @@ router.delete('/:id', function (req, res, next) {
             db.User.findOne({ username: thought.username }).then((result) => {
     
                 var user = result;
+
+                if(user && user.thoughts){
+
+                    user.thoughts.pull({ _id: thought._id });
     
-                user.thoughts.pull({ _id: thought._id });
-    
-                user.save().then((result) => {
-    
-                    finalResult.userResult = result;
-    
+                    user.save().then((result) => {
+        
+                        finalResult.userResult = result;
+        
+                        db.Thought.deleteOne({ _id: thought._id }).then((result) => {
+        
+                            finalResult.thoughtResult = result;
+        
+                            res.json(finalResult);
+        
+                        }).catch(function(err){
+                            return next(err);
+                        });
+        
+                    }).catch(function(err){
+                        return next(err);
+                    });
+
+                } else {
+
                     db.Thought.deleteOne({ _id: thought._id }).then((result) => {
-    
+        
                         finalResult.thoughtResult = result;
     
                         res.json(finalResult);
@@ -144,10 +162,8 @@ router.delete('/:id', function (req, res, next) {
                     }).catch(function(err){
                         return next(err);
                     });
-    
-                }).catch(function(err){
-                    return next(err);
-                });
+
+                }
     
             }).catch(function(err){
                 return next(err);
@@ -209,16 +225,20 @@ router.delete('/:thoughtId/reactions/:reactionId', function (req, res, next) {
         db.Thought.findOne({ _id: thoughtId }).then((result) => {
     
             var thought = result;
-    
-            thought.reactions.pull({ reactionId: reactionId });
-    
-            thought.save().then((result) => {
 
-                res.json(result);
+            if(thought && thought.reactions){
 
-            }).catch(function(err){
-                return next(err);
-            });
+                thought.reactions.pull({ reactionId: reactionId });
+    
+                thought.save().then((result) => {
+    
+                    res.json(result);
+    
+                }).catch(function(err){
+                    return next(err);
+                });
+                
+            }
     
         }).catch(function(err){
             return next(err);
